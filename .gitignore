@@ -1,0 +1,8 @@
+node_modules
+dist
+*.local
+.DS_Store
+server/data/scores.json
+*.log
+.vite
+coverage

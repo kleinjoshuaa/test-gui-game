@@ -1,0 +1,30 @@
+.play {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem 1rem 2.5rem;
+  gap: 1.15rem;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(32rem, 100%);
+  gap: 1rem;
+}
+
+.restart {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--fg-muted);
+  border-radius: var(--radius-full);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.88rem;
+}
+
+.restart:hover {
+  color: var(--fg);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+}

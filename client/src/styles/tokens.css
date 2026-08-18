@@ -1,0 +1,34 @@
+:root {
+  --bg: #0c171d;
+  --bg-elevated: #13232c;
+  --fg: #e7eef2;
+  --fg-muted: #8ea3ad;
+  --line: color-mix(in srgb, var(--fg) 12%, transparent);
+  --accent: #ff6b4a;
+  --accent-ink: #2a0c06;
+  --teal: #0d7377;
+  --teal-deep: #074447;
+  --teal-bright: #2ec4b6;
+
+  --card-back-start: #0a3d40;
+  --card-back-end: #0d7377;
+  --card-1: #2ec4b6;
+  --card-2: #ff6b4a;
+  --card-3: #5ec8d8;
+  --card-4: #f4a261;
+  --card-5: #2a9d8f;
+  --card-6: #e76f51;
+  --card-7: #48bfe3;
+  --card-8: #ff9f7a;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 28px;
+  --radius-full: 9999px;
+
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-ui: "DM Sans", "Gill Sans", sans-serif;
+
+  --shadow-soft: 0 18px 50px rgba(4, 12, 16, 0.45);
+  --glow-teal: 0 0 48px color-mix(in srgb, var(--teal) 40%, transparent);
+}
