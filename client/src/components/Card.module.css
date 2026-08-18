@@ -44,9 +44,9 @@
 
 .back {
   background:
-    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--teal-bright) 28%, transparent), transparent 46%),
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--card-back-glow) 28%, transparent), transparent 46%),
     linear-gradient(145deg, var(--card-back-start), var(--card-back-end));
-  border: 1px solid color-mix(in srgb, var(--teal-bright) 32%, transparent);
+  border: 1px solid color-mix(in srgb, var(--card-back-glow) 32%, transparent);
 }
 
 .back::after {
