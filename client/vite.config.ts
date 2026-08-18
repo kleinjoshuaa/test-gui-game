@@ -6,6 +6,8 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    // Bind all interfaces so Cloud Agent port forwarding can reach the dev server.
+    host: true,
     proxy: {
       "/api": {
         target: "http://localhost:3001",
