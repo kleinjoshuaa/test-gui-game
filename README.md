@@ -21,7 +21,9 @@ Open [http://localhost:5173](http://localhost:5173). The Vite dev server proxies
 
 1. Enter a display name and start.
 2. Flip two cards per turn; matches stay up.
-3. Clear the 4×4 board; your time and moves land on the leaderboard.
+3. Pick rows and columns (2–6, even tile count), then clear the board. Time and moves land on the leaderboard.
+
+Board size defaults to 4×4. Override with `BOARD_ROWS` and `BOARD_COLS` on the API process, or send `rows` and `cols` on `POST /api/sessions`.
 
 ## Design Mode
 
@@ -40,7 +42,7 @@ Restyle `--accent`, card faces, radii, and display typography in `client/src/sty
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `POST` | `/api/sessions` | Create seeded board |
+| `POST` | `/api/sessions` | Create seeded board (`playerName`, optional `rows`/`cols`) |
 | `POST` | `/api/sessions/:id/complete` | Submit score |
 | `GET` | `/api/leaderboard` | Top 10 |
 | `GET` | `/api/health` | Health check |

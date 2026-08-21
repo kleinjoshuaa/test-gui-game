@@ -10,12 +10,19 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { nanoid } from "nanoid";
 import { compareScores } from "./game.js";
+import {
+  DEFAULT_BOARD_COLS,
+  DEFAULT_BOARD_ROWS,
+  type BoardSize,
+} from "./boardConfig.js";
 
 export type Session = {
   id: string;
   playerName: string;
   seed: string;
   startedAt: number;
+  rows: number;
+  cols: number;
   completedAt?: number;
   moves?: number;
   durationMs?: number;
@@ -27,6 +34,8 @@ export type ScoreEntry = {
   moves: number;
   durationMs: number;
   completedAt: number;
+  rows: number;
+  cols: number;
 };
 
 type Persisted = {
@@ -66,13 +75,18 @@ export class Store {
     }
     try {
       const parsed = JSON.parse(readFileSync(this.scoresPath, "utf8")) as Partial<Persisted>;
-      this.scores = Array.isArray(parsed.scores) ? parsed.scores : [];
+      this.scores = Array.isArray(parsed.scores)
+        ? parsed.scores.map((score) => withBoardSize(score))
+        : [];
       const sessions = Array.isArray(parsed.sessions) ? parsed.sessions : [];
       // Drop completed leftovers from older store versions; scores already hold them.
       this.sessions = new Map(
         sessions
           .filter((session) => session.completedAt === undefined)
-          .map((session) => [session.id, session]),
+          .map((session) => {
+            const sized = withBoardSize(session);
+            return [sized.id, sized];
+          }),
       );
       this.pruneOpenSessions();
     } catch {
@@ -114,12 +128,14 @@ export class Store {
     }
   }
 
-  createSession(playerName: string, seed: string): Session {
+  createSession(playerName: string, seed: string, size: BoardSize): Session {
     const session: Session = {
       id: nanoid(),
       playerName,
       seed,
       startedAt: Date.now(),
+      rows: size.rows,
+      cols: size.cols,
     };
     this.sessions.set(session.id, session);
     this.pruneOpenSessions();
@@ -147,6 +163,8 @@ export class Store {
       moves,
       durationMs,
       completedAt,
+      rows: session.rows,
+      cols: session.cols,
     };
     this.scores.push(entry);
     // Score is durable; drop the open session so the file stays bounded.
@@ -171,3 +189,15 @@ export class Store {
 }
 
 export const store = new Store();
+
+function dimensionOrDefault(value: number | undefined, fallback: number): number {
+  return Number.isInteger(value) && value !== undefined ? value : fallback;
+}
+
+function withBoardSize<T extends { rows?: number; cols?: number }>(value: T): T & BoardSize {
+  return {
+    ...value,
+    rows: dimensionOrDefault(value.rows, DEFAULT_BOARD_ROWS),
+    cols: dimensionOrDefault(value.cols, DEFAULT_BOARD_COLS),
+  };
+}

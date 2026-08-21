@@ -18,6 +18,9 @@ export function Leaderboard({ entries }: LeaderboardProps) {
             <li key={entry.id} className={styles.row}>
               <span className={styles.rank}>{index + 1}</span>
               <span className={styles.name}>{entry.playerName}</span>
+              <span className={styles.meta}>
+                {entry.rows}×{entry.cols}
+              </span>
               <span className={styles.meta}>{entry.moves} moves</span>
               <span className={styles.meta}>{formatDuration(entry.durationMs)}</span>
             </li>
