@@ -1,0 +1,15 @@
+{
+  "name": "Memory Mosaic",
+  "install": "corepack enable\ncorepack prepare pnpm@10.33.3 --activate\npnpm install --frozen-lockfile",
+  "terminals": [
+    {
+      "name": "dev",
+      "command": "pnpm dev",
+      "description": "Vite client on port 5173 and Express API on port 3001. Open http://localhost:5173 to play."
+    }
+  ],
+  "ports": [
+    { "name": "client", "port": 5173 },
+    { "name": "api", "port": 3001 }
+  ]
+}
