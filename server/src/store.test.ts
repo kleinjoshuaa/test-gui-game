@@ -21,7 +21,7 @@ describe("Store", () => {
     const dir = mkdtempSync(path.join(tmpdir(), "mosaic-store-"));
     dirs.push(dir);
     const first = new Store(dir);
-    const session = first.createSession("Ada", "seed-1");
+    const session = first.createSession("Ada", "seed-1", { rows: 4, cols: 4 });
     expect(first.openSessionCount).toBe(1);
 
     first.completeSession(session.id, 10, 12_000);
@@ -38,6 +38,8 @@ describe("Store", () => {
         moves: 10,
         durationMs: 12_000,
         completedAt: expect.any(Number),
+        rows: 4,
+        cols: 4,
       },
     ]);
   });
@@ -45,7 +47,7 @@ describe("Store", () => {
   it("writes atomically via a temp file that does not remain after save", () => {
     const { store, dir } = tempStore();
     dirs.push(dir);
-    store.createSession("Bea", "seed-2");
+    store.createSession("Bea", "seed-2", { rows: 2, cols: 4 });
 
     const raw = readFileSync(path.join(dir, "scores.json"), "utf8");
     expect(JSON.parse(raw).sessions).toHaveLength(1);
@@ -97,13 +99,14 @@ describe("Store", () => {
     expect(store.getSession("old-open")).toBeDefined();
     expect(store.getSession("old-done")).toBeUndefined();
     expect(store.scoreCount).toBe(1);
+    expect(store.getLeaderboard()[0]).toMatchObject({ rows: 4, cols: 4 });
   });
 
   it("caps open sessions at MAX_OPEN_SESSIONS, dropping oldest", () => {
     const { store } = tempStore();
     const ids: string[] = [];
     for (let i = 0; i < MAX_OPEN_SESSIONS + 5; i++) {
-      const session = store.createSession(`P${i}`, `seed-${i}`);
+      const session = store.createSession(`P${i}`, `seed-${i}`, { rows: 4, cols: 4 });
       ids.push(session.id);
     }
     expect(store.openSessionCount).toBe(MAX_OPEN_SESSIONS);
@@ -119,8 +122,18 @@ describe("Store", () => {
     const { store } = tempStore();
     expect(() => store.completeSession("missing", 1, 100)).toThrow("Session not found");
 
-    const session = store.createSession("Cara", "seed-3");
+    const session = store.createSession("Cara", "seed-3", { rows: 4, cols: 4 });
     store.completeSession(session.id, 4, 5000);
     expect(() => store.completeSession(session.id, 4, 5000)).toThrow("Session not found");
+  });
+
+  it("records board size on the session and completed score", () => {
+    const { store } = tempStore();
+    const session = store.createSession("Dee", "seed-4", { rows: 2, cols: 3 });
+    expect(session).toMatchObject({ rows: 2, cols: 3 });
+
+    const score = store.completeSession(session.id, 5, 4000);
+    expect(score).toMatchObject({ rows: 2, cols: 3 });
+    expect(store.getLeaderboard()[0]).toMatchObject({ rows: 2, cols: 3 });
   });
 });

@@ -6,6 +6,7 @@ import {
   type LeaderboardEntry,
   type Session,
 } from "./api";
+import { DEFAULT_BOARD_COLS, DEFAULT_BOARD_ROWS, type BoardSize } from "./boardSize";
 import { useGame } from "./hooks/useGame";
 import { Landing } from "./screens/Landing";
 import { Play } from "./screens/Play";
@@ -17,6 +18,10 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>("landing");
   const [playerName, setPlayerName] = useState("");
   const [session, setSession] = useState<Session | null>(null);
+  const [boardSize, setBoardSize] = useState<BoardSize>({
+    rows: DEFAULT_BOARD_ROWS,
+    cols: DEFAULT_BOARD_COLS,
+  });
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [durationMs, setDurationMs] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -55,13 +60,14 @@ export default function App() {
     })();
   }, [game.status, game.moves, game.startedAt, session]);
 
-  async function startGame(name: string) {
+  async function startGame(name: string, size: BoardSize = boardSize) {
     setPending(true);
     setError(null);
     try {
-      const next = await createSession(name);
+      const next = await createSession(name, size);
       submittedRef.current = false;
       setPlayerName(next.playerName || name);
+      setBoardSize({ rows: next.rows, cols: next.cols });
       setSession(next);
       setScreen("play");
     } catch {
@@ -81,6 +87,8 @@ export default function App() {
     return (
       <Play
         cards={game.cards}
+        rows={session.rows}
+        cols={session.cols}
         moves={game.moves}
         startedAt={game.startedAt}
         locked={game.locked}
@@ -106,6 +114,13 @@ export default function App() {
   }
 
   return (
-    <Landing initialName={playerName} pending={pending} error={error} onStart={(name) => void startGame(name)} />
+    <Landing
+      initialName={playerName}
+      initialRows={boardSize.rows}
+      initialCols={boardSize.cols}
+      pending={pending}
+      error={error}
+      onStart={(name, size) => void startGame(name, size)}
+    />
   );
 }

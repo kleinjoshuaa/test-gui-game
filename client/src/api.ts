@@ -9,6 +9,8 @@ export type Session = {
   sessionId: string;
   seed: string;
   cards: SessionCard[];
+  rows: number;
+  cols: number;
   startedAt: string;
   playerName: string;
 };
@@ -19,6 +21,8 @@ export type LeaderboardEntry = {
   moves: number;
   durationMs: number;
   completedAt: string;
+  rows: number;
+  cols: number;
 };
 
 async function parseJson<T>(res: Response, fallback: string): Promise<T> {
@@ -28,11 +32,14 @@ async function parseJson<T>(res: Response, fallback: string): Promise<T> {
   return (await res.json()) as T;
 }
 
-export async function createSession(playerName: string): Promise<Session> {
+export async function createSession(
+  playerName: string,
+  board: { rows: number; cols: number },
+): Promise<Session> {
   const res = await fetch("/api/sessions", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ playerName }),
+    body: JSON.stringify({ playerName, rows: board.rows, cols: board.cols }),
   });
   return parseJson<Session>(res, "Failed to start a session");
 }

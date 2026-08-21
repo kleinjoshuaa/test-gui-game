@@ -1,3 +1,9 @@
+import {
+  DEFAULT_BOARD_COLS,
+  DEFAULT_BOARD_ROWS,
+  resolveBoardSize,
+  type BoardSize,
+} from "./boardConfig.js";
 import { SYMBOLS } from "./symbols.js";
 
 export type Card = {
@@ -45,9 +51,18 @@ function shuffle<T>(items: T[], rng: () => number): T[] {
   return arr;
 }
 
-/** Deterministic 4×4 board: 8 symbol pairs shuffled from `seed`. */
-export function createBoard(seed: string): Card[] {
-  const pairs: Card[] = SYMBOLS.flatMap((symbol) =>
+const DEFAULT_SIZE: BoardSize = { rows: DEFAULT_BOARD_ROWS, cols: DEFAULT_BOARD_COLS };
+
+/** Deterministic board: `rows × cols / 2` symbol pairs shuffled from `seed`. */
+export function createBoard(seed: string, size: BoardSize = DEFAULT_SIZE): Card[] {
+  const resolved = resolveBoardSize(size, DEFAULT_SIZE, SYMBOLS.length);
+  if (!resolved.ok) {
+    throw new Error(resolved.error);
+  }
+
+  const pairCount = (resolved.size.rows * resolved.size.cols) / 2;
+  const selected = SYMBOLS.slice(0, pairCount);
+  const pairs: Card[] = selected.flatMap((symbol) =>
     [0, 1].map((copy) => ({
       id: `${symbol.id}-${copy}`,
       symbolId: symbol.id,

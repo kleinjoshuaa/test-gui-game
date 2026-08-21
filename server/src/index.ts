@@ -1,11 +1,14 @@
 import cors from "cors";
 import express, { type Request, type Response } from "express";
 import { nanoid } from "nanoid";
+import { boardSizeFromEnv, resolveBoardSize } from "./boardConfig.js";
 import { createBoard } from "./game.js";
 import { store } from "./store.js";
+import { SYMBOLS } from "./symbols.js";
 
 const PORT = Number(process.env.PORT) || 3001;
 const VITE_ORIGIN = process.env.CORS_ORIGIN ?? "http://localhost:5173";
+const defaultBoardSize = boardSizeFromEnv(process.env, SYMBOLS.length);
 
 const app = express();
 app.use(cors({ origin: VITE_ORIGIN }));
@@ -23,14 +26,26 @@ app.post("/api/sessions", (req: Request, res: Response) => {
     return;
   }
 
+  const board = resolveBoardSize(
+    { rows: req.body?.rows, cols: req.body?.cols },
+    defaultBoardSize,
+    SYMBOLS.length,
+  );
+  if (!board.ok) {
+    res.status(400).json({ error: board.error });
+    return;
+  }
+
   const seed = nanoid();
-  const session = store.createSession(playerName, seed);
-  const cards = createBoard(seed);
+  const session = store.createSession(playerName, seed, board.size);
+  const cards = createBoard(seed, board.size);
 
   res.status(201).json({
     sessionId: session.id,
     seed: session.seed,
     cards,
+    rows: board.size.rows,
+    cols: board.size.cols,
     startedAt: session.startedAt,
     playerName: session.playerName,
   });
